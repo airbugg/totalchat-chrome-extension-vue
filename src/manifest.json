@@ -1,0 +1,28 @@
+{
+  "name": "totalchat-chrome-extension-vue",
+  "description": "Make totalchat great again",
+  "version": null,
+  "manifest_version": 2,
+  "icons": {
+    "48": "icons/icon_48.png",
+    "128": "icons/icon_128.png"
+  },
+  "background": {
+    "scripts": ["browser-polyfill.min.js", "background.js"],
+    "matches": ["https://totalchat.co.il/*", "http://totalchat.tapuz.co.il/*"]
+  },
+  "content_scripts": [
+    {
+      "run_at": "document_start",
+      "matches": ["https://totalchat.co.il/*", "http://totalchat.tapuz.co.il/*"],
+      "js": ["browser-polyfill.min.js", "inject.js"]
+    },
+    {
+      "run_at": "document_end",
+      "matches": ["https://totalchat.co.il/*", "http://totalchat.tapuz.co.il/*"],
+      "css": ["content.css"],
+      "js": ["browser-polyfill.min.js", "content.js"]
+    }
+  ],
+  "web_accessible_resources": ["injection.js"]
+}

@@ -1,0 +1,11 @@
+#youtube_container,
+#premium_connect_popup,
+#start-popup,
+#register-prem,
+#sideBannerLeft {
+  display: none !important;
+}
+
+#roster-outer-container {
+  height: 66% !important;
+}
