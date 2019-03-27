@@ -1,19 +1,12 @@
 import elementReady from 'element-ready'
-import onChange from 'on-change'
-
-export const ACTION_TYPES = {
-  EXECUTE: 'EXECUTE',
-  EXECUTE_START: 'EXECUTE_START',
-  EXECUTE_FAILED: 'EXECUTE_FAILED',
-  EXECUTE_SUCCESS: 'EXECUTE_SUCCESS',
-  API_READY: 'API_READY',
-}
+import _ from 'lodash'
+import DeepProxy from 'proxy-deep'
 const debugMode = process.env.NODE_ENV === 'development'
 
 const roundedRandom = (say, when) => Math.floor(when ? say : 0 + Math.random() * (when || say))
 
-export const log = (severity, content) => {
-  const args = [`%c[${severity}]\t%c${content}`, 'font-weight: bold;', '']
+export const log = (severity, ...content) => {
+  const args = [`%c[${severity}]\t%o`, 'font-weight: bold;', content]
   return debugMode ? console.log(...args) : () => {}
 }
 
@@ -36,11 +29,11 @@ export const updateAuNausum = (selector, value) =>
   })
 
 export const injectScript = file => {
-  var s = document.createElement('script')
-  s.setAttribute('type', 'text/javascript')
-  s.setAttribute('src', file)
-  s.setAttribute('id', 'injected-script-yo-look-here')
-  document.documentElement.appendChild(s)
+  const injection = document.createElement('script')
+  injection.setAttribute('type', 'text/javascript')
+  injection.setAttribute('src', file)
+  injection.setAttribute('id', 'totalchat-chrome-extension')
+  document.documentElement.appendChild(injection)
 }
 export function uuidv4() {
   return ([1e7] + -1e3 + -4e3 + -8e3 + -1e11).replace(/[018]/g, c =>
@@ -48,16 +41,55 @@ export function uuidv4() {
   )
 }
 
-export function waitUntilDefined(context, varName, callback) {
+export function traceMethodCalls(obj, name) {
+  return new DeepProxy(obj, {
+    get(target, key, receiver) {
+      const val = Reflect.get(target, key, receiver)
+      if (typeof val === 'object' && val !== null) {
+        return this.nest(val)
+      }
+
+      if (typeof val === 'function') {
+        log(`${name}.${this.path.join('.')}()`)
+        return function(...args) {
+          return val.apply(this, args) // (A)
+        }
+      }
+      // log(`${name}.${this.path.join('.')}`, val)
+
+      return val
+    },
+  })
+}
+
+// export function traceMethodCalls(obj, name) {
+//   const handler = new Proxy(
+//     {},
+//     {
+//       get(target, trapName, receiver) {
+//         // Return the handler method named trapName
+//         return function(target, key, receiver) {
+//           log(trapName.toUpperCase(), key.toString())
+//           // Forward the operation
+//           return key === Symbol.toPrimitive && trapName.toUpperCase() !== 'GET'
+//             ? Reflect[trapName](target, key, receiver)
+//             : receiver
+//         }
+//       },
+//     }
+//   )
+//   return new Proxy(obj, handler)
+// }
+
+export function waitUntilDefined(context, varName) {
   if (!context.hasOwnProperty(varName)) {
     Object.defineProperty(window, varName, {
-      configurable: true,
       enumerable: true,
       get: function() {
         return this._obj
       },
       set: function(val) {
-        this._obj = onChange(val, callback)
+        this._obj = traceMethodCalls(val, varName)
       },
     })
   }

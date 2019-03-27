@@ -1,16 +1,25 @@
 import { feature } from '../core/feature'
-import { log, random, updateAuNausum } from '../core/utils'
+import { random, updateAuNausum } from '../core/utils'
 import { isLoggedIn, logIn } from '../core/interface'
 
 const personas = {
-  nickname: ['panhandler', 'טקסט כלוא', 'chickens came home', 'knot', 'neverhasbeen', 'thats a no'],
+  nickname: [
+    'panhandler',
+    'אהמ',
+    'chickens came home',
+    'muttersprache',
+    'neverhasbeen',
+    'thats a no',
+    'much',
+  ],
   freetext: [
     'tie a knot around thy floor',
     'scatter your feet all over my dreams',
     'tread like your neighbours are the floor',
+    'טקסט כלוא',
   ],
-  age: ['31'],
-  area: ['7'],
+  age: ['30'],
+  area: ['1', '3', '7'],
   sex: ['1'],
 }
 
@@ -20,9 +29,7 @@ const init = async () => {
   })
 
   if (!(await isLoggedIn())) {
-    log('autofill-nick', 'seems we have not logged in yet, let us remedy that...')
     await logIn()
-    log('autofill-nick', 'There we are...')
   }
 }
 

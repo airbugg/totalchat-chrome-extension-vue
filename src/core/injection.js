@@ -14,7 +14,8 @@ const reply = (id, result) => {
   )
 }
 ;(async function initialize() {
-  waitUntilDefined(window, 'Handlers', (...args) => console.log(...args))
+  waitUntilDefined(window, 'Handlers')
+  // waitUntilDefined(window, 'chatCore')
 
   window.addEventListener('message', async ({ data }) => {
     const { id, type, payload } = data
